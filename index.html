@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6c5ce7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>أبطال كيد الأعداء - اللعبة المثيرة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --accent: #fd79a8;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+            --dark: #2d3436;
+            --light: #dfe6e9;
+            --gradient: linear-gradient(120deg, #6c5ce7, #fd79a8);
+            --card-back: #6c5ce7;
+            --background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--light);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            background-attachment: fixed;
+            touch-action: manipulation;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* الرأس الثابت */
+        .header {
+            background: rgba(44, 62, 80, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .points {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(108, 92, 231, 0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+
+        .points i {
+            color: var(--warning);
+        }
+
+        /* المحتوى الرئيسي */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 15px 70px; /* مساحة للذيل الثابت */
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .welcome-section p {
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .stages-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stage-section {
+            background: rgba(44, 62, 80, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stage-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stage-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+            font-size: 18px;
+        }
+
+        .stage-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .stage-status {
+            margin-right: auto;
+            font-size: 14px;
+            color: var(--secondary);
+        }
+
+        .stage-desc {
+            margin-bottom: 15px;
+            color: var(--light);
+            opacity: 0.8;
+        }
+
+        .stage-levels {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .level-btn {
+            background: rgba(108, 92, 231, 0.3);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1/1;
+            position: relative;
+        }
+
+        .level-btn:hover {
+            background: rgba(108, 92, 231, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .level-btn.completed {
+            background: rgba(0, 184, 148, 0.3);
+        }
+
+        .level-btn.locked {
+            background: rgba(99, 110, 114, 0.3);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .level-number {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .level-points {
+            font-size: 12px;
+            color: var(--warning);
+        }
+
+        .lock-icon {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            color: var(--light);
+            font-size: 12px;
+        }
+
+        .progress-container {
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            height: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        /* الذيل الثابت */
+        .footer {
+            background: rgba(44, 62, 80, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--light);
+            text-decoration: none;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+            background: rgba(253, 121, 168, 0.1);
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* الرسائل والتنبيهات */
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--accent);
+            width: 85%;
+            max-width: 350px;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .message.show {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { box-shadow: 0 0 15px rgba(253, 121, 168, 0.5); }
+            to { box-shadow: 0 0 25px rgba(253, 121, 168, 0.8); }
+        }
+
+        .message i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        .message h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: var(--warning);
+        }
+
+        .message p {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* التكيف مع الشاشات المختلفة */
+        @media (max-width: 480px) {
+            .stage-levels {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .stage-title {
+                font-size: 18px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .stage-levels {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- الرأس الثابت -->
+    <header class="header">
+        <h1><i class="fas fa-dragon"></i> أبطال كيد الأعداء <i class="fas fa-dragon"></i></h1>
+        <div class="user-info">
+            <div class="points">
+                <i class="fas fa-coins"></i>
+                <span id="total-points">0</span> نقطة
+            </div>
+            <div id="user-name">المستخدم</div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="content">
+        <div class="container">
+            <div class="welcome-section">
+                <p>اختر مرحلة لبدء المغامرة المثيرة!</p>
+            </div>
+
+            <div class="stages-container">
+                <!-- المرحلة الأولى -->
+                <div class="stage-section">
+                    <div class="stage-header">
+                        <div class="stage-icon">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <div class="stage-title">المرحلة الأولى: البداية</div>
+                        <div class="stage-status" id="stage1-status">0/23 مكتمل</div>
+                    </div>
+                    <div class="stage-desc">
+                        ابدأ رحلتك في عالم الأبطال وتعلم الأساسيات. يجب إكمال هذه المرحلة لفتح المرحلة التالية.
+                    </div>
+                    <div class="stage-levels" id="stage1-levels">
+                        <!-- سيتم ملء مستويات المرحلة الأولى ديناميكيًا -->
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="stage1-progress" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- المرحلة الثانية -->
+                <div class="stage-section">
+                    <div class="stage-header">
+                        <div class="stage-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="stage-title">المرحلة الثانية: التحدي</div>
+                        <div class="stage-status" id="stage2-status">مقفلة</div>
+                    </div>
+                    <div class="stage-desc">
+                        واجه التحديات واختبر مهاراتك في لعبة الذاكرة المتقدمة. يجب إكمال المرحلة الأولى أولاً.
+                    </div>
+                    <div class="stage-levels" id="stage2-levels">
+                        <!-- سيتم ملء مستويات المرحلة الثانية ديناميكيًا -->
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="stage2-progress" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- المرحلة الثالثة -->
+                <div class="stage-section">
+                    <div class="stage-header">
+                        <div class="stage-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="stage-title">المرحلة الثالثة: الألغاز الرياضية</div>
+                        <div class="stage-status" id="stage3-status">مقفلة</div>
+                    </div>
+                    <div class="stage-desc">
+                        اختبر ذكاءك في حل الألغاز الرياضية المثيرة. يجب إكمال المرحلة الثانية أولاً.
+                    </div>
+                    <div class="stage-levels" id="stage3-levels">
+                        <!-- سيتم ملء مستويات المرحلة الثالثة ديناميكيًا -->
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="stage3-progress" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الذيل الثابت -->
+    <nav class="footer">
+        <a href="#" class="nav-item active" data-target="home">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </a>
+        <a href="#" class="nav-item" data-target="profile">
+            <i class="fas fa-user"></i>
+            <span>الملف الشخصي</span>
+        </a>
+        <a href="#" class="nav-item" data-target="settings">
+            <i class="fas fa-cog"></i>
+            <span>الإعدادات</span>
+        </a>
+    </nav>
+
+    <!-- رسالة التنبيه -->
+    <div class="message" id="message">
+        <i class="fas fa-lock"></i>
+        <h3 id="message-title">مرحلة مقفولة</h3>
+        <p id="message-text">يجب إكمال المرحلة السابقة أولاً لفتح هذه المرحلة</p>
+        <button class="btn" id="message-btn">
+            <i class="fas fa-check"></i> موافق
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+        // تعريف المتغيرات العامة
+        let db;
+        let totalPoints = 0;
+        let userName = "المستخدم";
+        let stage1Completed = 0;
+        let stage2Completed = false;
+        let stage3Completed = false;
+
+        // بيانات المستويات
+        const stage1Levels = 23;
+        const stage2Levels = 1; // مرحلة التحدي تحتوي على مستوى واحد (لعبة الذاكرة)
+        const stage3Levels = 40;
+
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', initApp);
+
+        function initApp() {
+            initializeDB();
+            setupEventListeners();
+        }
+
+        // تهيئة قاعدة البيانات IndexedDB
+        function initializeDB() {
+            const request = indexedDB.open('CardGameDB', 7); // ترقية الإصدار إلى 7
+
+            request.onerror = (event) => {
+                console.error('فشل في فتح قاعدة البيانات', event);
+                showToast('خطأ في تحميل البيانات، يرجى إعادة تحميل التطبيق');
+            };
+
+            request.onsuccess = (event) => {
+                db = event.target.result;
+                loadGameData();
+            };
+
+            request.onupgradeneeded = (event) => {
+                db = event.target.result;
+                
+                // إنشاء مخازن البيانات إذا لم تكن موجودة
+                if (!db.objectStoreNames.contains('levels')) {
+                    const levelsStore = db.createObjectStore('levels', { keyPath: 'id' });
+                    levelsStore.createIndex('completed', 'completed', { unique: false });
+                }
+                
+                if (!db.objectStoreNames.contains('stats')) {
+                    const statsStore = db.createObjectStore('stats', { keyPath: 'id' });
+                    statsStore.add({ id: 'totalPoints', value: 0 });
+                }
+                
+                if (!db.objectStoreNames.contains('user')) {
+                    const userStore = db.createObjectStore('user', { keyPath: 'id' });
+                    userStore.add({ id: 'profile', name: 'المستخدم', email: '' });
+                }
+                
+                if (!db.objectStoreNames.contains('challenge2')) {
+                    const challengeStore = db.createObjectStore('challenge2', { keyPath: 'id' });
+                }
+                
+                if (!db.objectStoreNames.contains('stage3Levels')) {
+                    const stage3Store = db.createObjectStore('stage3Levels', { keyPath: 'id' });
+                }
+            };
+        }
+
+        // تحميل بيانات اللعبة
+        function loadGameData() {
+            const transaction = db.transaction(['stats', 'user', 'levels', 'challenge2', 'stage3Levels'], 'readonly');
+            const statsStore = transaction.objectStore('stats');
+            const userStore = transaction.objectStore('user');
+            const levelsStore = transaction.objectStore('levels');
+            const challengeStore = transaction.objectStore('challenge2');
+            const stage3Store = transaction.objectStore('stage3Levels');
+            
+            // تحميل النقاط الإجمالية
+            const pointsRequest = statsStore.get('totalPoints');
+            pointsRequest.onsuccess = (event) => {
+                if (pointsRequest.result) {
+                    totalPoints = pointsRequest.result.value;
+                    document.getElementById('total-points').textContent = totalPoints;
+                }
+            };
+            
+            // تحميل بيانات المستخدم
+            const userRequest = userStore.get('profile');
+            userRequest.onsuccess = (event) => {
+                if (userRequest.result) {
+                    userName = userRequest.result.name;
+                    document.getElementById('user-name').textContent = userName;
+                }
+            };
+            
+            // تحميل تقدم المرحلة الأولى
+            const levelsRequest = levelsStore.getAll();
+            levelsRequest.onsuccess = (event) => {
+                const levels = event.target.result;
+                stage1Completed = levels.filter(level => level.completed).length;
+                
+                document.getElementById('stage1-status').textContent = `${stage1Completed}/${stage1Levels} مكتمل`;
+                updateProgress('stage1-progress', stage1Completed, stage1Levels);
+                
+                renderStage1Levels();
+                
+                // بعد تحميل المرحلة الأولى، تحقق من المرحلة الثانية
+                checkStage2Access();
+            };
+            
+            // تحميل حالة المرحلة الثانية
+            const challengeRequest = challengeStore.get('stage2');
+            challengeRequest.onsuccess = (event) => {
+                if (event.target.result) {
+                    stage2Completed = event.target.result.completed;
+                    if (stage2Completed) {
+                        document.getElementById('stage2-status').textContent = 'مكتملة';
+                        updateProgress('stage2-progress', 1, 1);
+                    }
+                    
+                    // بعد تحميل المرحلة الثانية، تحقق من المرحلة الثالثة
+                    checkStage3Access();
+                }
+            };
+            
+            // تحميل تقدم المرحلة الثالثة
+            const stage3Request = stage3Store.getAll();
+            stage3Request.onsuccess = (event) => {
+                const levels = event.target.result;
+                const completedLevels = levels.filter(level => level.completed).length;
+                
+                document.getElementById('stage3-status').textContent = `${completedLevels}/${stage3Levels} مكتمل`;
+                updateProgress('stage3-progress', completedLevels, stage3Levels);
+                
+                renderStage3Levels(completedLevels);
+            };
+        }
+
+        // التحقق من إمكانية الوصول إلى المرحلة الثانية
+        function checkStage2Access() {
+            if (stage1Completed >= stage1Levels) {
+                document.getElementById('stage2-status').textContent = 'متاحة';
+                document.getElementById('stage2-levels').innerHTML = '';
+                
+                const levelBtn = document.createElement('button');
+                levelBtn.className = 'level-btn';
+                levelBtn.innerHTML = `
+                    <div class="level-number">التحدي</div>
+                    <div class="level-points">+50 نقطة</div>
+                `;
+                levelBtn.addEventListener('click', () => {
+                    window.location.href = 'stage2.html';
+                });
+                
+                document.getElementById('stage2-levels').appendChild(levelBtn);
+            } else {
+                document.getElementById('stage2-levels').innerHTML = '';
+                
+                const lockBtn = document.createElement('button');
+                lockBtn.className = 'level-btn locked';
+                lockBtn.innerHTML = `
+                    <i class="fas fa-lock lock-icon"></i>
+                    <div class="level-number">--</div>
+                    <div class="level-points">مقفلة</div>
+                `;
+                lockBtn.addEventListener('click', () => {
+                    showLockedMessage('يجب إكمال جميع مستويات المرحلة الأولى أولاً');
+                });
+                
+                document.getElementById('stage2-levels').appendChild(lockBtn);
+            }
+        }
+
+        // التحقق من إمكانية الوصول إلى المرحلة الثالثة
+        function checkStage3Access() {
+            if (stage2Completed) {
+                document.getElementById('stage3-status').textContent = 'متاحة';
+            } else {
+                const stage3Levels = document.getElementById('stage3-levels');
+                stage3Levels.innerHTML = '';
+                
+                for (let i = 1; i <= 3; i++) {
+                    const lockBtn = document.createElement('button');
+                    lockBtn.className = 'level-btn locked';
+                    lockBtn.innerHTML = `
+                        <i class="fas fa-lock lock-icon"></i>
+                        <div class="level-number">${i}</div>
+                        <div class="level-points">مقفل</div>
+                    `;
+                    lockBtn.addEventListener('click', () => {
+                        showLockedMessage('يجب إكمال مرحلة التحدي أولاً');
+                    });
+                    
+                    stage3Levels.appendChild(lockBtn);
+                }
+            }
+        }
+
+        // عرض مستويات المرحلة الأولى
+        function renderStage1Levels() {
+            const container = document.getElementById('stage1-levels');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= Math.min(stage1Levels, 6); i++) {
+                const levelBtn = document.createElement('button');
+                levelBtn.className = 'level-btn';
+                
+                if (i <= stage1Completed) {
+                    levelBtn.classList.add('completed');
+                }
+                
+                levelBtn.innerHTML = `
+                    <div class="level-number">${i}</div>
+                    <div class="level-points">${i <= stage1Completed ? '3/3' : '0/3'}</div>
+                `;
+                
+                levelBtn.addEventListener('click', () => {
+                    window.location.href = `level.html?level=${i}`;
+                });
+                
+                container.appendChild(levelBtn);
+            }
+            
+            // إذا كان هناك أكثر من 6 مستويات، إضافة زر "المزيد"
+            if (stage1Levels > 6) {
+                const moreBtn = document.createElement('button');
+                moreBtn.className = 'level-btn';
+                moreBtn.innerHTML = `
+                    <div class="level-number">...</div>
+                    <div class="level-points">المزيد</div>
+                `;
+                
+                moreBtn.addEventListener('click', () => {
+                    // هنا يمكنك توجيه المستخدم إلى صفحة تحتوي على جميع المستويات
+                    showToast('سيتم فتح صفحة جميع مستويات المرحلة الأولى');
+                });
+                
+                container.appendChild(moreBtn);
+            }
+        }
+
+        // عرض مستويات المرحلة الثالثة
+        function renderStage3Levels(completedLevels) {
+            if (!stage2Completed) return;
+            
+            const container = document.getElementById('stage3-levels');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= Math.min(3, stage3Levels); i++) {
+                const levelBtn = document.createElement('button');
+                levelBtn.className = 'level-btn';
+                
+                if (i <= completedLevels) {
+                    levelBtn.classList.add('completed');
+                }
+                
+                levelBtn.innerHTML = `
+                    <div class="level-number">${i}</div>
+                    <div class="level-points">${i <= completedLevels ? '3/3' : '0/3'}</div>
+                `;
+                
+                levelBtn.addEventListener('click', () => {
+                    window.location.href = `stage3-level.html?level=${i}`;
+                });
+                
+                container.appendChild(levelBtn);
+            }
+            
+            // إذا كان هناك أكثر من 3 مستويات، إضافة زر "المزيد"
+            if (stage3Levels > 3) {
+                const moreBtn = document.createElement('button');
+                moreBtn.className = 'level-btn';
+                moreBtn.innerHTML = `
+                    <div class="level-number">...</div>
+                    <div class="level-points">المزيد</div>
+                `;
+                
+                moreBtn.addEventListener('click', () => {
+                    window.location.href = 'stage3.html';
+                });
+                
+                container.appendChild(moreBtn);
+            }
+        }
+
+        // عرض رسالة القفل
+        function showLockedMessage(message) {
+            const messageEl = document.getElementById('message');
+            document.getElementById('message-title').textContent = 'مرحلة مقفولة';
+            document.getElementById('message-text').textContent = message;
+            messageEl.classList.add('show');
+        }
+
+        // تحديث شريط التقدم
+        function updateProgress(progressBarId, current, max) {
+            const progressBar = document.getElementById(progressBarId);
+            const percentage = (current / max) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        // عرض إشعار toast
+        function showToast(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top",
+                position: "center",
+                backgroundColor: "linear-gradient(to right, #6c5ce7, #fd79a8)",
+                stopOnFocus: true
+            }).showToast();
+        }
+
+        // تهيئة مستمعي الأحداث
+        function setupEventListeners() {
+            document.getElementById('message-btn').addEventListener('click', () => {
+                document.getElementById('message').classList.remove('show');
+            });
+            
+            // أحداث عناصر التنقل
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    const target = item.getAttribute('data-target');
+                    document.querySelectorAll('.nav-item').forEach(nav => {
+                        nav.classList.remove('active');
+                    });
+                    item.classList.add('active');
+                    
+                    // هنا يمكنك معالجة النقر على عناصر التنقل
+                    switch(target) {
+                        case 'home':
+                            // نحن بالفعل في الصفحة الرئيسية
+                            break;
+                        case 'profile':
+                            showToast('سيتم فتح صفحة الملف الشخصي');
+                            break;
+                        case 'settings':
+                            showToast('سيتم فتح صفحة الإعدادات');
+                            break;
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
