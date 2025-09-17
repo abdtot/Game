@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#00b894">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>مرحلة التحدي - أبطال كيد الأعداء</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <style>
+        :root {
+            --primary: #00b894;
+            --secondary: #55efc4;
+            --accent: #fd79a8;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+            --dark: #2d3436;
+            --light: #dfe6e9;
+            --gradient: linear-gradient(120deg, #00b894, #55efc4);
+            --card-back: #00b894;
+            --background: linear-gradient(135deg, #1a1a2e 0%, #004d40 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--light);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            background-attachment: fixed;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        header {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 77, 64, 0.8);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .total-points {
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .total-points i {
+            color: var(--warning);
+        }
+
+        .challenge-info {
+            background: rgba(0, 77, 64, 0.7);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .challenge-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--light);
+        }
+
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cards-section {
+            background: rgba(0, 77, 64, 0.7);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cards-section h2 {
+            margin-bottom: 12px;
+            text-align: center;
+            color: var(--secondary);
+            font-size: 18px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .card {
+            width: 100%;
+            height: 150px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+            color: var(--dark);
+            transform: rotateY(180deg);
+            padding: 8px;
+        }
+
+        .card-front img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .card-back {
+            background: var(--card-back);
+            color: white;
+            font-size: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><path fill="rgba(255,255,255,0.1)" d="M0 0h20v20H0zM20 20h20v20H20z"/></svg>');
+            background-size: 20px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(0, 77, 64, 0.95);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--accent);
+            width: 85%;
+            max-width: 350px;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .message.show {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { box-shadow: 0 0 15px rgba(253, 121, 168, 0.5); }
+            to { box-shadow: 0 0 25px rgba(253, 121, 168, 0.8); }
+        }
+
+        .message i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        .message h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: var(--warning);
+        }
+
+        .message p {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--gradient);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .locked-message {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 77, 64, 0.7);
+            border-radius: 15px;
+            margin: 20px 0;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .locked-message i {
+            font-size: 50px;
+            color: var(--warning);
+            margin-bottom: 20px;
+        }
+
+        .locked-message h2 {
+            margin-bottom: 15px;
+            color: var(--warning);
+        }
+
+        .locked-message p {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .card {
+                height: 120px;
+            }
+            
+            .challenge-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            opacity: 0;
+            z-index: 999;
+            pointer-events: none;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(1000px) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-fire"></i> مرحلة التحدي <i class="fas fa-fire"></i></h1>
+            <div class="total-points">
+                <i class="fas fa-coins"></i>
+                <span id="total-points">0</span> نقطة
+            </div>
+            <div class="progress-bar">
+                <div class="progress" id="total-progress" style="width: 0%"></div>
+            </div>
+        </header>
+
+        <div id="challenge-screen">
+            <div class="challenge-info">
+                <h2><i class="fas fa-trophy"></i> تحدي الذاكرة المتقدم</h2>
+                <p>تذكر مواقع البطاقات وابحث عن الأزواج المتطابقة في أسرع وقت ممكن!</p>
+                
+                <div class="challenge-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="timer">60</div>
+                        <div class="stat-label">ثانية</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="moves">0</div>
+                        <div class="stat-label">حركة</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="pairs">0/8</div>
+                        <div class="stat-label">زوج</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <div class="cards-section">
+                    <h2><i class="fas fa-gamepad"></i> ابحث عن الأزواج المتطابقة</h2>
+                    <div class="cards-grid" id="cards-container">
+                        <!-- سيتم ملء البطاقات ديناميكيًا -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn" id="start-btn">
+                    <i class="fas fa-play"></i> بدء التحدي
+                </button>
+                <button class="btn btn-secondary" id="back-btn">
+                    <i class="fas fa-arrow-right"></i> العودة
+                </button>
+            </div>
+        </div>
+
+        <div id="locked-screen" style="display: none;">
+            <div class="locked-message">
+                <i class="fas fa-lock"></i>
+                <h2>المرحلة مقفولة!</h2>
+                <p>يجب عليك إكمال جميع مستويات المرحلة الأولى أولاً لفتح مرحلة التحدي.</p>
+                <button class="btn" id="back-to-levels">
+                    <i class="fas fa-arrow-right"></i> العودة إلى المستويات
+                </button>
+            </div>
+        </div>
+
+        <div class="message" id="message">
+            <i class="fas fa-trophy"></i>
+            <h3 id="message-title">تهانينا!</h3>
+            <p id="message-text">لقد أكملت التحدي بنجاح</p>
+            <button class="btn" id="message-btn">
+                <i class="fas fa-check"></i> موافق
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+        // تعريف المتغيرات العامة
+        let db;
+        let totalPoints = 0;
+        let challengeCompleted = false;
+        let gameStarted = false;
+        let timeLeft = 60;
+        let moves = 0;
+        let pairsFound = 0;
+        let gameTimer;
+        let firstCard = null;
+        let secondCard = null;
+        let lockBoard = false;
+
+        // بيانات بطاقات التحدي
+        const challengeCards = [
+            { id: 1, type: 'challenge', path: 'img/challenge-1.jpg' },
+            { id: 2, type: 'challenge', path: 'img/challenge-2.jpg' },
+            { id: 3, type: 'challenge', path: 'img/challenge-3.jpg' },
+            { id: 4, type: 'challenge', path: 'img/challenge-4.jpg' },
+            { id: 5, type: 'challenge', path: 'img/challenge-5.jpg' },
+            { id: 6, type: 'challenge', path: 'img/challenge-6.jpg' },
+            { id: 7, type: 'challenge', path: 'img/challenge-7.jpg' },
+            { id: 8, type: 'challenge', path: 'img/challenge-8.jpg' }
+        ];
+
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', initApp);
+
+        function initApp() {
+            initializeDB();
+            setupEventListeners();
+            checkChallengeAccess();
+        }
+
+        // تهيئة قاعدة البيانات IndexedDB
+        function initializeDB() {
+            const request = indexedDB.open('CardGameDB', 5);
+
+            request.onerror = (event) => {
+                console.error('فشل في فتح قاعدة البيانات', event);
+                showToast('خطأ في تحميل البيانات، يرجى إعادة تحميل التطبيق');
+            };
+
+            request.onsuccess = (event) => {
+                db = event.target.result;
+                loadGameData();
+            };
+
+            request.onupgradeneeded = (event) => {
+                db = event.target.result;
+                
+                // إنشاء مخزن لتحدي المرحلة الثانية
+                if (!db.objectStoreNames.contains('challenge2')) {
+                    const challengeStore = db.createObjectStore('challenge2', { keyPath: 'id' });
+                    challengeStore.createIndex('completed', 'completed', { unique: false });
+                }
+            };
+        }
+
+        // تحميل بيانات اللعبة
+        function loadGameData() {
+            const transaction = db.transaction(['stats', 'challenge2'], 'readonly');
+            const statsStore = transaction.objectStore('stats');
+            const challengeStore = transaction.objectStore('challenge2');
+            
+            const pointsRequest = statsStore.get('totalPoints');
+            pointsRequest.onsuccess = (event) => {
+                if (pointsRequest.result) {
+                    totalPoints = pointsRequest.result.value;
+                    document.getElementById('total-points').textContent = totalPoints;
+                    updateProgress('total-progress', totalPoints, 100);
+                }
+            };
+            
+            const challengeRequest = challengeStore.get('stage2');
+            challengeRequest.onsuccess = (event) => {
+                if (challengeRequest.result) {
+                    challengeCompleted = challengeRequest.result.completed;
+                }
+            };
+        }
+
+        // التحقق من إمكانية الوصول إلى مرحلة التحدي
+        function checkChallengeAccess() {
+            const transaction = db.transaction(['levels'], 'readonly');
+            const levelsStore = transaction.objectStore('levels');
+            const request = levelsStore.getAll();
+            
+            request.onsuccess = (event) => {
+                const levels = event.target.result;
+                const completedLevels = levels.filter(level => level.completed).length;
+                
+                // إذا كان عدد المستويات المكتملة أقل من 23، عرض شاشة القفل
+                if (completedLevels < 23) {
+                    document.getElementById('challenge-screen').style.display = 'none';
+                    document.getElementById('locked-screen').style.display = 'block';
+                } else {
+                    document.getElementById('challenge-screen').style.display = 'block';
+                    document.getElementById('locked-screen').style.display = 'none';
+                }
+            };
+        }
+
+        // بدء التحدي
+        function startChallenge() {
+            if (gameStarted) return;
+            
+            gameStarted = true;
+            timeLeft = 60;
+            moves = 0;
+            pairsFound = 0;
+            
+            document.getElementById('start-btn').innerHTML = '<i class="fas fa-sync-alt"></i> إعادة开始';
+            document.getElementById('timer').textContent = timeLeft;
+            document.getElementById('moves').textContent = moves;
+            document.getElementById('pairs').textContent = '0/8';
+            
+            createCards();
+            startGameTimer();
+        }
+
+        // إنشاء بطاقات التحدي
+        function createCards() {
+            const cardsContainer = document.getElementById('cards-container');
+            cardsContainer.innerHTML = '';
+            
+            // مضاعفة البطاقات لإنشاء أزواج
+            const gameCards = [...challengeCards, ...challengeCards];
+            
+            // خلط البطاقات
+            shuffleArray(gameCards);
+            
+            // إنشاء عناصر البطاقات
+            gameCards.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                cardElement.dataset.id = card.id;
+                
+                const cardInner = document.createElement('div');
+                cardInner.className = 'card-inner';
+                
+                const cardFront = document.createElement('div');
+                cardFront.className = 'card-front';
+                
+                const cardImage = document.createElement('img');
+                cardImage.className = 'card-image';
+                cardImage.src = card.path;
+                cardImage.alt = 'تحدي';
+                cardFront.appendChild(cardImage);
+                
+                const cardBack = document.createElement('div');
+                cardBack.className = 'card-back';
+                cardBack.innerHTML = '<div class="pattern">❖</div><div>؟</div>';
+                
+                cardInner.appendChild(cardFront);
+                cardInner.appendChild(cardBack);
+                cardElement.appendChild(cardInner);
+                
+                cardElement.addEventListener('click', () => flipCard(cardElement));
+                
+                cardsContainer.appendChild(cardElement);
+            });
+        }
+
+        // قلب البطاقة
+        function flipCard(card) {
+            if (lockBoard) return;
+            if (card === firstCard) return;
+            if (card.classList.contains('flipped')) return;
+            
+            card.classList.add('flipped');
+            
+            if (!firstCard) {
+                // النقرة الأولى
+                firstCard = card;
+                return;
+            }
+            
+            // النقرة الثانية
+            secondCard = card;
+            moves++;
+            document.getElementById('moves').textContent = moves;
+            
+            checkForMatch();
+        }
+
+        // التحقق من تطابق البطاقات
+        function checkForMatch() {
+            lockBoard = true;
+            
+            const isMatch = firstCard.dataset.id === secondCard.dataset.id;
+            
+            if (isMatch) {
+                disableCards();
+                pairsFound++;
+                document.getElementById('pairs').textContent = `${pairsFound}/8`;
+                
+                if (pairsFound === 8) {
+                    completeChallenge();
+                }
+            } else {
+                unflipCards();
+            }
+        }
+
+        // تعطيل البطاقات المتطابقة
+        function disableCards() {
+            firstCard.removeEventListener('click', () => flipCard(firstCard));
+            secondCard.removeEventListener('click', () => flipCard(secondCard));
+            
+            resetBoard();
+        }
+
+        // إعادة البطاقات غير المتطابقة
+        function unflipCards() {
+            setTimeout(() => {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                
+                resetBoard();
+            }, 1000);
+        }
+
+        // إعادة تعيين اللوحة
+        function resetBoard() {
+            [firstCard, secondCard] = [null, null];
+            lockBoard = false;
+        }
+
+        // بدء مؤقت اللعبة
+        function startGameTimer() {
+            if (gameTimer) {
+                clearInterval(gameTimer);
+            }
+            
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                
+                if (timeLeft <= 10) {
+                    document.getElementById('timer').style.color = '#d63031';
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(gameTimer);
+                    endChallengeDueToTime();
+                }
+            }, 1000);
+        }
+
+        // إنهاء التحدي بسبب انتهاء الوقت
+        function endChallengeDueToTime() {
+            showMessage('انتهى الوقت!', 'لم تستطع إكمال التحدي في الوقت المحدد', false);
+            resetGame();
+        }
+
+        // إكمال التحدي بنجاح
+        function completeChallenge() {
+            clearInterval(gameTimer);
+            
+            const pointsEarned = calculatePoints();
+            totalPoints += pointsEarned;
+            
+            const transaction = db.transaction(['stats', 'challenge2'], 'readwrite');
+            const statsStore = transaction.objectStore('stats');
+            const challengeStore = transaction.objectStore('challenge2');
+            
+            statsStore.put({
+                id: 'totalPoints',
+                value: totalPoints
+            });
+            
+            challengeStore.put({
+                id: 'stage2',
+                completed: true,
+                points: pointsEarned,
+                moves: moves,
+                time: 60 - timeLeft
+            });
+            
+            transaction.oncomplete = () => {
+                document.getElementById('total-points').textContent = totalPoints;
+                updateProgress('total-progress', totalPoints, 100);
+                
+                createConfetti();
+                showMessage('تهانينا!', `لقد أكملت التحدي بنجاح وكسبت ${pointsEarned} نقطة!`, true);
+            };
+        }
+
+        // حساب النقاط المكتسبة
+        function calculatePoints() {
+            let points = 50; // نقاط أساسية
+            
+            // مكافأة الوقت (كل ثانية متبقية = نقطة إضافية)
+            points += timeLeft;
+            
+            // مكافأة الحركات (كلما قللت الحركات، زادت النقاط)
+            if (moves <= 16) points += 30;
+            else if (moves <= 24) points += 20;
+            else if (moves <= 32) points += 10;
+            
+            return points;
+        }
+
+        // إعادة تعيين اللعبة
+        function resetGame() {
+            gameStarted = false;
+            firstCard = null;
+            secondCard = null;
+            lockBoard = false;
+            
+            document.getElementById('start-btn').innerHTML = '<i class="fas fa-play"></i> بدء التحدي';
+            document.getElementById('timer').textContent = '60';
+            document.getElementById('timer').style.color = '#55efc4';
+            document.getElementById('moves').textContent = '0';
+            document.getElementById('pairs').textContent = '0/8';
+            
+            const cardsContainer = document.getElementById('cards-container');
+            cardsContainer.innerHTML = '';
+        }
+
+        // تأثير confetti عند الفوز
+        function createConfetti() {
+            const confettiCount = 100;
+            const colors = ['#00b894', '#55efc4', '#fd79a8', '#fdcb6e', '#d63031'];
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                }
+                
+                const size = Math.random() * 8 + 4;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.top = `${Math.random() * 50}%`;
+                
+                document.body.appendChild(confetti);
+                
+                const animationDuration = Math.random() * 2 + 2;
+                confetti.style.animation = `confettiFall ${animationDuration}s linear forwards`;
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, animationDuration * 1000);
+            }
+        }
+
+        // عرض رسالة
+        function showMessage(title, text, isChallengeComplete = false) {
+            const message = document.getElementById('message');
+            const messageTitle = document.getElementById('message-title');
+            const messageText = document.getElementById('message-text');
+            const messageBtn = document.getElementById('message-btn');
+            
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+            message.classList.add('show');
+            
+            messageBtn.onclick = () => {
+                message.classList.remove('show');
+                
+                if (isChallengeComplete) {
+                    resetGame();
+                }
+            };
+        }
+
+        // عرض إشعار toast
+        function showToast(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top",
+                position: "center",
+                backgroundColor: "linear-gradient(to right, #00b894, #55efc4)",
+                stopOnFocus: true
+            }).showToast();
+        }
+
+        // تحديث شريط التقدم
+        function updateProgress(progressBarId, current, max) {
+            const progressBar = document.getElementById(progressBarId);
+            const percentage = (current / max) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        // دالة لخلط المصفوفة (Fisher-Yates shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // تهيئة مستمعي الأحداث
+        function setupEventListeners() {
+            document.getElementById('start-btn').addEventListener('click', () => {
+                startChallenge();
+            });
+            
+            document.getElementById('back-btn').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+            
+            document.getElementById('back-to-levels').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+            
+            document.getElementById('message-btn').addEventListener('click', () => {
+                document.getElementById('message').classList.remove('show');
+            });
+        }
+    </script>
+</body>
+</html>
