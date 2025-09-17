@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0984e3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>مرحلة الألغاز الرياضية - أبطال كيد الأعداء</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <style>
+        :root {
+            --primary: #0984e3;
+            --secondary: #74b9ff;
+            --accent: #fd79a8;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+            --dark: #2d3436;
+            --light: #dfe6e9;
+            --gradient: linear-gradient(120deg, #0984e3, #74b9ff);
+            --card-back: #0984e3;
+            --background: linear-gradient(135deg, #1a1a2e 0%, #013a63 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--light);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            background-attachment: fixed;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        header {
+            text-align: center;
+            padding: 15px;
+            background: rgba(1, 58, 99, 0.8);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .total-points {
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .total-points i {
+            color: var(--warning);
+        }
+
+        .game-modes {
+            margin-bottom: 20px;
+        }
+
+        .mode-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .mode-tab {
+            background: rgba(1, 58, 99, 0.5);
+            border: none;
+            color: var(--light);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .mode-tab.active {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .level-card {
+            background: rgba(1, 58, 99, 0.7);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 1/1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .level-card:active {
+            transform: scale(0.95);
+        }
+
+        .level-card.locked {
+            background: rgba(99, 110, 114, 0.5);
+            cursor: not-allowed;
+        }
+
+        .level-card.completed {
+            background: rgba(0, 184, 148, 0.2);
+            border: 1px solid rgba(0, 184, 148, 0.3);
+        }
+
+        .level-card .level-number {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--light);
+            z-index: 2;
+        }
+
+        .level-card .level-status {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            z-index: 2;
+        }
+
+        .level-card .level-badge {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+        }
+
+        .level-card .level-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        .math-puzzle-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .math-puzzle-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .puzzle-container {
+            background: rgba(1, 58, 99, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .puzzle-header {
+            margin-bottom: 20px;
+        }
+
+        .puzzle-header h2 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .puzzle-header p {
+            color: var(--light);
+        }
+
+        .puzzle-question {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: var(--light);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .puzzle-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .puzzle-option {
+            background: rgba(116, 185, 255, 0.2);
+            border: none;
+            color: var(--light);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .puzzle-option:hover {
+            background: rgba(116, 185, 255, 0.4);
+        }
+
+        .puzzle-option.correct {
+            background: var(--success);
+            color: white;
+        }
+
+        .puzzle-option.incorrect {
+            background: var(--danger);
+            color: white;
+        }
+
+        .puzzle-hint {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(253, 203, 110, 0.2);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--warning);
+        }
+
+        .locked-message {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(1, 58, 99, 0.7);
+            border-radius: 15px;
+            margin: 20px 0;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .locked-message i {
+            font-size: 50px;
+            color: var(--warning);
+            margin-bottom: 20px;
+        }
+
+        .locked-message h2 {
+            margin-bottom: 15px;
+            color: var(--warning);
+        }
+
+        .locked-message p {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--gradient);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(1, 58, 99, 0.95);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--accent);
+            width: 85%;
+            max-width: 350px;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .message.show {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { box-shadow: 0 0 15px rgba(253, 121, 168, 0.5); }
+            to { box-shadow: 0 0 25px rgba(253, 121, 168, 0.8); }
+        }
+
+        .message i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        .message h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: var(--warning);
+        }
+
+        .message p {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .levels-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .levels-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .puzzle-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            opacity: 0;
+            z-index: 999;
+            pointer-events: none;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(1000px) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calculator"></i> مرحلة الألغاز الرياضية <i class="fas fa-calculator"></i></h1>
+            <div class="total-points">
+                <i class="fas fa-coins"></i>
+                <span id="total-points">0</span> نقطة
+            </div>
+            <div class="progress-bar">
+                <div class="progress" id="total-progress" style="width: 0%"></div>
+            </div>
+        </header>
+
+        <div id="levels-screen">
+            <div class="game-modes">
+                <div class="mode-tabs">
+                    <button class="mode-tab active" data-mode="normal">المستويات العادية</button>
+                    <button class="mode-tab" data-mode="puzzle">ألغاز رياضية</button>
+                    <button class="mode-tab" data-mode="timed">الوقت المحدد</button>
+                </div>
+            </div>
+            
+            <div class="levels-grid" id="levels-container">
+                <!-- سيتم ملء المستويات ديناميكيًا -->
+            </div>
+        </div>
+
+        <div id="locked-screen" style="display: none;">
+            <div class="locked-message">
+                <i class="fas fa-lock"></i>
+                <h2>المرحلة مقفولة!</h2>
+                <p>يجب عليك إكمال مرحلة التحدي أولاً لفتح مرحلة الألغاز الرياضية.</p>
+                <button class="btn" id="back-to-stages">
+                    <i class="fas fa-arrow-right"></i> العودة إلى المراحل
+                </button>
+            </div>
+        </div>
+
+        <div class="math-puzzle-modal" id="math-puzzle-modal">
+            <div class="puzzle-container">
+                <div class="puzzle-header">
+                    <h2><i class="fas fa-puzzle-piece"></i> لغز رياضي</h2>
+                    <p>حل هذا اللغز للمتابعة إلى المستوى التالي</p>
+                </div>
+                <div class="puzzle-question" id="puzzle-question"></div>
+                <div class="puzzle-options" id="puzzle-options">
+                    <!-- سيتم ملء الخيارات ديناميكيًا -->
+                </div>
+                <div class="puzzle-hint" id="puzzle-hint"></div>
+                <button class="btn" id="puzzle-close" style="display: none;">
+                    <i class="fas fa-check"></i> متابعة
+                </button>
+            </div>
+        </div>
+
+        <div class="message" id="message">
+            <i class="fas fa-trophy"></i>
+            <h3 id="message-title">تهانينا!</h3>
+            <p id="message-text">لقد أكملت المستوى بنجاح</p>
+            <button class="btn" id="message-btn">
+                <i class="fas fa-check"></i> موافق
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+        // تعريف المتغيرات العامة
+        let db;
+        let currentLevel = 1;
+        let totalPoints = 0;
+        let stageCompleted = false;
+        let gameMode = "normal";
+        let mathPuzzles = [];
+        let currentPuzzle = null;
+
+        // بيانات المستويات والبطاقات
+        const levelsData = [];
+        const levelBackgrounds = [
+            'https://images.unsplash.com/photo-1579546929662-711aa81148cf?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+            'https://images.unsplash.com/photo-1513151233558-d860c5398176?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+            'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+            'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+            'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'
+        ];
+
+        // إنشاء بيانات المستويات ديناميكيًا (40 مستوى)
+        for (let i = 1; i <= 40; i++) {
+            const cards = [];
+            const requiredPoints = i > 1 ? (i-1) * 3 : 0;
+            
+            for (let j = 1; j <= 3; j++) {
+                cards.push({ id: `stage3-${i}-${j}`, type: 'puzzle', path: `img/stage3/puzzle-${i}-${j}.jpg` });
+                cards.push({ id: `stage3-${i}-${j}`, type: 'solution', path: `img/stage3/solution-${i}-${j}.jpg` });
+            }
+            
+            levelsData.push({
+                id: i,
+                cards: cards,
+                background: levelBackgrounds[i % levelBackgrounds.length],
+                requiredPoints: requiredPoints,
+                hasPuzzle: i % 5 === 0 // كل 5 مستويات يوجد لغز رياضي
+            });
+        }
+
+        // إنشاء الألغاز الرياضية
+        function generateMathPuzzles() {
+            mathPuzzles = [];
+            
+            // 8 ألغاز (واحد لكل 5 مستويات)
+            for (let i = 1; i <= 8; i++) {
+                const puzzleType = Math.floor(Math.random() * 4);
+                let question, answer, options, hint;
+                
+                switch(puzzleType) {
+                    case 0: // جمع
+                        const a = Math.floor(Math.random() * 50) + 10;
+                        const b = Math.floor(Math.random() * 50) + 10;
+                        question = `ما هو ناتج جمع ${a} + ${b}؟`;
+                        answer = a + b;
+                        options = [answer, answer + 5, answer - 3, answer + 10];
+                        hint = "تذكر خاصية التجميع في الجمع";
+                        break;
+                    case 1: // طرح
+                        const c = Math.floor(Math.random() * 50) + 30;
+                        const d = Math.floor(Math.random() * 20) + 10;
+                        question = `ما هو ناتج طرح ${c} - ${d}؟`;
+                        answer = c - d;
+                        options = [answer, answer + 4, answer - 2, answer + 7];
+                        hint = "الطرح هو العملية العكسية للجمع";
+                        break;
+                    case 2: // ضرب
+                        const e = Math.floor(Math.random() * 10) + 2;
+                        const f = Math.floor(Math.random() * 10) + 2;
+                        question = `ما هو ناتج ضرب ${e} × ${f}؟`;
+                        answer = e * f;
+                        options = [answer, answer + e, answer + f, answer * 2];
+                        hint = "الضرب هو جمع متكرر للعدد نفسه";
+                        break;
+                    case 3: // قسمة
+                        const g = Math.floor(Math.random() * 10) + 2;
+                        const h = g * (Math.floor(Math.random() * 10) + 2);
+                        question = `ما هو ناتج قسمة ${h} ÷ ${g}؟`;
+                        answer = h / g;
+                        options = [answer, answer + 1, answer - 1, answer + 2];
+                        hint = "القسمة هي التوزيع المتساوي";
+                        break;
+                }
+                
+                // خلط الخيارات
+                options = shuffleArray(options);
+                
+                mathPuzzles.push({
+                    id: i,
+                    question: question,
+                    answer: answer,
+                    options: options,
+                    hint: hint
+                });
+            }
+        }
+
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', initApp);
+
+        function initApp() {
+            generateMathPuzzles();
+            initializeDB();
+            setupEventListeners();
+            checkStageAccess();
+        }
+
+        // تهيئة قاعدة البيانات IndexedDB
+        function initializeDB() {
+            const request = indexedDB.open('CardGameDB', 6); // ترقية الإصدار إلى 6
+
+            request.onerror = (event) => {
+                console.error('فشل في فتح قاعدة البيانات', event);
+                showToast('خطأ في تحميل البيانات، يرجى إعادة تحميل التطبيق');
+            };
+
+            request.onsuccess = (event) => {
+                db = event.target.result;
+                loadGameData();
+            };
+
+            request.onupgradeneeded = (event) => {
+                db = event.target.result;
+                
+                // إنشاء مخزن للمستويات الخاصة بالمرحلة الثالثة
+                if (!db.objectStoreNames.contains('stage3Levels')) {
+                    const levelsStore = db.createObjectStore('stage3Levels', { keyPath: 'id' });
+                    levelsStore.createIndex('completed', 'completed', { unique: false });
+                    levelsStore.createIndex('points', 'points', { unique: false });
+                }
+                
+                // إنشاء مخزن لإحصائيات المرحلة الثالثة
+                if (!db.objectStoreNames.contains('stage3Stats')) {
+                    const statsStore = db.createObjectStore('stage3Stats', { keyPath: 'id' });
+                    statsStore.add({ id: 'stageCompleted', value: false });
+                }
+            };
+        }
+
+        // تحميل بيانات اللعبة
+        function loadGameData() {
+            const transaction = db.transaction(['stats', 'stage3Stats'], 'readonly');
+            const statsStore = transaction.objectStore('stats');
+            const stage3StatsStore = transaction.objectStore('stage3Stats');
+            
+            const pointsRequest = statsStore.get('totalPoints');
+            pointsRequest.onsuccess = (event) => {
+                if (pointsRequest.result) {
+                    totalPoints = pointsRequest.result.value;
+                    document.getElementById('total-points').textContent = totalPoints;
+                    updateProgress('total-progress', totalPoints, 500);
+                }
+            };
+            
+            const stageRequest = stage3StatsStore.get('stageCompleted');
+            stageRequest.onsuccess = (event) => {
+                if (stageRequest.result) {
+                    stageCompleted = stageRequest.result.value;
+                }
+            };
+            
+            loadLevels();
+        }
+
+        // التحقق من إمكانية الوصول إلى المرحلة الثالثة
+        function checkStageAccess() {
+            const transaction = db.transaction(['challenge2'], 'readonly');
+            const challengeStore = transaction.objectStore('challenge2');
+            const request = challengeStore.get('stage2');
+            
+            request.onsuccess = (event) => {
+                if (request.result && request.result.completed) {
+                    document.getElementById('levels-screen').style.display = 'block';
+                    document.getElementById('locked-screen').style.display = 'none';
+                } else {
+                    document.getElementById('levels-screen').style.display = 'none';
+                    document.getElementById('locked-screen').style.display = 'block';
+                }
+            };
+        }
+
+        // تحميل و عرض المستويات
+        function loadLevels() {
+            const levelsContainer = document.getElementById('levels-container');
+            levelsContainer.innerHTML = '';
+            
+            const transaction = db.transaction(['stage3Levels'], 'readonly');
+            const levelsStore = transaction.objectStore('stage3Levels');
+            
+            for (let i = 1; i <= 40; i++) {
+                const levelCard = document.createElement('div');
+                levelCard.className = 'level-card ripple';
+                levelCard.dataset.level = i;
+                
+                const levelBg = document.createElement('div');
+                levelBg.className = 'level-bg';
+                levelBg.style.backgroundImage = `url(${levelsData[i-1].background})`;
+                levelCard.appendChild(levelBg);
+                
+                const levelNumber = document.createElement('div');
+                levelNumber.className = 'level-number';
+                levelNumber.innerHTML = `<i class="fas fa-${i === 1 ? 'play' : 'hashtag'}"></i> ${i}`;
+                levelCard.appendChild(levelNumber);
+                
+                const levelStatus = document.createElement('div');
+                levelStatus.className = 'level-status';
+                levelCard.appendChild(levelStatus);
+                
+                // إضافة شارة خاصة للمستويات التي تحتوي على ألغاز
+                if (levelsData[i-1].hasPuzzle) {
+                    const puzzleBadge = document.createElement('div');
+                    puzzleBadge.className = 'level-badge';
+                    puzzleBadge.innerHTML = '<i class="fas fa-puzzle-piece"></i>';
+                    levelCard.appendChild(puzzleBadge);
+                }
+                
+                const request = levelsStore.get(i);
+                
+                request.onsuccess = (event) => {
+                    if (request.result) {
+                        if (request.result.completed) {
+                            levelCard.classList.add('completed');
+                            levelStatus.innerHTML = `<i class="fas fa-star"></i> ${request.result.points}/3`;
+                        }
+                    }
+                    
+                    // التحقق مما إذا كان المستوى مقفلاً
+                    if (i > 1) {
+                        const levelData = levelsData[i-1];
+                        if (totalPoints < levelData.requiredPoints) {
+                            levelCard.classList.add('locked');
+                            levelStatus.innerHTML = `<i class="fas fa-lock"></i> ${levelData.requiredPoints} نقطة`;
+                        } else {
+                            // التحقق مما إذا كان المستوى السابق مكتملاً
+                            const prevRequest = levelsStore.get(i-1);
+                            prevRequest.onsuccess = (e) => {
+                                if (!prevRequest.result || !prevRequest.result.completed) {
+                                    levelCard.classList.add('locked');
+                                    levelStatus.innerHTML = '<i class="fas fa-lock"></i> مقفل';
+                                }
+                            };
+                        }
+                    }
+                };
+                
+                levelCard.addEventListener('click', () => {
+                    if (!levelCard.classList.contains('locked')) {
+                        startLevel(i);
+                    } else {
+                        showToast('هذا المستوى مقفل، يجب إكمال المستوى السابق أولاً');
+                    }
+                });
+                
+                levelsContainer.appendChild(levelCard);
+            }
+        }
+
+        // بدء مستوى جديد
+        function startLevel(level) {
+            currentLevel = level;
+            
+            // إذا كان المستوى يحتوي على لغز رياضي (كل 5 مستويات)
+            if (levelsData[level-1].hasPuzzle) {
+                showMathPuzzle(level);
+            } else {
+                // الانتقال إلى شاشة اللعبة العادية
+                window.location.href = `stage3-level.html?level=${level}`;
+            }
+        }
+
+        // عرض اللغز الرياضي
+        function showMathPuzzle(level) {
+            const puzzleIndex = Math.floor((level - 1) / 5);
+            currentPuzzle = mathPuzzles[puzzleIndex];
+            
+            document.getElementById('puzzle-question').textContent = currentPuzzle.question;
+            
+            const optionsContainer = document.getElementById('puzzle-options');
+            optionsContainer.innerHTML = '';
+            
+            currentPuzzle.options.forEach((option, index) => {
+                const optionButton = document.createElement('button');
+                optionButton.className = 'puzzle-option';
+                optionButton.textContent = option;
+                optionButton.addEventListener('click', () => checkPuzzleAnswer(option, optionButton));
+                optionsContainer.appendChild(optionButton);
+            });
+            
+            document.getElementById('puzzle-hint').textContent = `تلميح: ${currentPuzzle.hint}`;
+            document.getElementById('puzzle-close').style.display = 'none';
+            
+            document.getElementById('math-puzzle-modal').classList.add('show');
+        }
+
+        // التحقق من إجابة اللغز الرياضي
+        function checkPuzzleAnswer(selectedAnswer, optionButton) {
+            const options = document.querySelectorAll('.puzzle-option');
+            options.forEach(option => {
+                option.disabled = true;
+                if (parseInt(option.textContent) === currentPuzzle.answer) {
+                    option.classList.add('correct');
+                }
+            });
+            
+            if (parseInt(selectedAnswer) === currentPuzzle.answer) {
+                optionButton.classList.add('correct');
+                showToast('إجابة صحيحة! جاري الانتقال إلى المستوى...');
+                
+                setTimeout(() => {
+                    document.getElementById('math-puzzle-modal').classList.remove('show');
+                    window.location.href = `stage3-level.html?level=${currentLevel}`;
+                }, 1500);
+            } else {
+                optionButton.classList.add('incorrect');
+                showToast('إجابة خاطئة! حاول مرة أخرى');
+                
+                setTimeout(() => {
+                    options.forEach(option => {
+                        option.disabled = false;
+                        option.classList.remove('correct', 'incorrect');
+                    });
+                }, 1500);
+            }
+        }
+
+        // إكمال المستوى
+        function completeLevel(level, points) {
+            const transaction = db.transaction(['stage3Levels', 'stats', 'stage3Stats'], 'readwrite');
+            
+            const levelsStore = transaction.objectStore('stage3Levels');
+            levelsStore.put({
+                id: level,
+                completed: true,
+                points: points
+            });
+            
+            totalPoints += points;
+            const statsStore = transaction.objectStore('stats');
+            statsStore.put({
+                id: 'totalPoints',
+                value: totalPoints
+            });
+            
+            // التحقق إذا كانت كل المستويات مكتملة
+            if (level === 40) {
+                const stage3StatsStore = transaction.objectStore('stage3Stats');
+                stage3StatsStore.put({
+                    id: 'stageCompleted',
+                    value: true
+                });
+                
+                stageCompleted = true;
+            }
+            
+            transaction.oncomplete = () => {
+                document.getElementById('total-points').textContent = totalPoints;
+                updateProgress('total-progress', totalPoints, 500);
+                
+                if (level === 40) {
+                    createConfetti();
+                    showMessage('تهانينا!', 'لقد أكملت مرحلة الألغاز الرياضية بالكامل!', true);
+                } else {
+                    showToast(`تهانينا! لقد أكملت المستوى ${level} وكسبت ${points} نقاط!`);
+                }
+                
+                loadLevels();
+            };
+        }
+
+        // تأثير confetti عند الفوز
+        function createConfetti() {
+            const confettiCount = 100;
+            const colors = ['#0984e3', '#74b9ff', '#fd79a8', '#00b894', '#fdcb6e'];
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                }
+                
+                const size = Math.random() * 8 + 4;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.top = `${Math.random() * 50}%`;
+                
+                document.body.appendChild(confetti);
+                
+                const animationDuration = Math.random() * 2 + 2;
+                confetti.style.animation = `confettiFall ${animationDuration}s linear forwards`;
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, animationDuration * 1000);
+            }
+        }
+
+        // عرض رسالة
+        function showMessage(title, text, isLevelComplete = false) {
+            const message = document.getElementById('message');
+            const messageTitle = document.getElementById('message-title');
+            const messageText = document.getElementById('message-text');
+            const messageBtn = document.getElementById('message-btn');
+            
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+            message.classList.add('show');
+            
+            messageBtn.onclick = () => {
+                message.classList.remove('show');
+            };
+        }
+
+        // عرض إشعار toast
+        function showToast(message) {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top",
+                position: "center",
+                backgroundColor: "linear-gradient(to right, #0984e3, #74b9ff)",
+                stopOnFocus: true
+            }).showToast();
+        }
+
+        // تحديث شريط التقدم
+        function updateProgress(progressBarId, current, max) {
+            const progressBar = document.getElementById(progressBarId);
+            const percentage = (current / max) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        // دالة لخلط المصفوفة (Fisher-Yates shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // تهيئة مستمعي الأحداث
+        function setupEventListeners() {
+            document.getElementById('back-to-stages').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+            
+            document.getElementById('puzzle-close').addEventListener('click', () => {
+                document.getElementById('math-puzzle-modal').classList.remove('show');
+            });
+            
+            document.getElementById('message-btn').addEventListener('click', () => {
+                document.getElementById('message').classList.remove('show');
+            });
+            
+            // أحداث أنماط اللعبة
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const mode = tab.getAttribute('data-mode');
+                    changeGameMode(mode);
+                });
+            });
+        }
+
+        // تغيير نمط اللعبة
+        function changeGameMode(mode) {
+            gameMode = mode;
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.mode-tab[data-mode="${mode}"]`).classList.add('active');
+            
+            // إعادة تحميل المستويات بناءً على النمط المختار
+            loadLevels();
+        }
+
+        // دالة مساعدة للانتقال إلى مستوى معين
+        function goToLevel(level) {
+            window.location.href = `stage3-level.html?level=${level}`;
+        }
+    </script>
+</body>
+</html>
