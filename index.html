@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6c5ce7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>أبطال البطاقات - لعبة الذكاء</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --accent: #fd79a8;
+            --background: #2d3436;
+            --card-back: #6c5ce7;
+            --text: #dfe6e9;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --error: #d63031;
+            --gradient: linear-gradient(120deg, #6c5ce7, #fd79a8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            padding: 20px;
+            padding-bottom: 80px;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: bold;
+        }
+
+        .header p {
+            color: var(--secondary);
+            font-size: 16px;
+        }
+
+        /* تصميم بطاقات المراحل */
+        .stages-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stage-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stage-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .stage-card.locked {
+            opacity: 0.7;
+            filter: grayscale(0.8);
+            cursor: not-allowed;
+        }
+
+        .stage-card.completed {
+            border-color: var(--success);
+        }
+
+        .stage-number {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .stage-status {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* تصميم المتويات */
+        .levels-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .level-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            transition: all 0.3s ease;
+            aspect-ratio: 1/1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .level-card.locked {
+            opacity: 0.7;
+            filter: grayscale(0.8);
+            cursor: not-allowed;
+        }
+
+        .level-card.completed {
+            border-color: var(--success);
+        }
+
+        .level-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        .level-number {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary);
+            z-index: 1;
+        }
+
+        .level-status {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            z-index: 1;
+        }
+
+        .ribbon {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--gradient);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            transform: rotate(5deg);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* شريط التنقل السفلي */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(45, 52, 54, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            font-size: 12px;
+            transition: all 0.3s ease;
+            padding: 5px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            background: rgba(108, 92, 231, 0.2);
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        /* تأثيرات النجوم */
+        .star {
+            position: fixed;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        /* تأثير الريبل */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple:after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .5s, opacity 1s;
+        }
+
+        .ripple:active:after {
+            transform: scale(0, 0);
+            opacity: .3;
+            transition: 0s;
+        }
+
+        /* تصميم متجاوب لأجهزة الاندرويد */
+        @media (max-width: 480px) {
+            .stages-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .stage-card {
+                padding: 15px;
+            }
+            
+            .levels-container {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 10px;
+            }
+            
+            .level-card {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .header p {
+                font-size: 14px;
+            }
+        }
+
+        /* إخفاء شريط التمرير */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* تحسين المظهر لأجهزة الاندرويد */
+        body {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        input, textarea {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+    </style>
+</head>
+<body>
+    <!-- الشاشة الرئيسية -->
+    <div id="home-screen" class="screen active">
+        <div class="container">
+            <div class="header">
+                <h1>أبطال البطاقات</h1>
+                <p>اختر مرحلة للبدء</p>
+            </div>
+            
+            <div class="stages-container">
+                <div class="stage-card ripple" data-stage="1">
+                    <div class="stage-number">المرحلة 1</div>
+                    <div class="stage-status" id="stage-1-status">0/5 مستويات مكتملة</div>
+                </div>
+                
+                <div class="stage-card ripple locked" data-stage="2">
+                    <div class="stage-number">المرحلة 2</div>
+                    <div class="stage-status"><i class="fas fa-lock"></i> مقفلة</div>
+                </div>
+                
+                <div class="stage-card ripple locked" data-stage="3">
+                    <div class="stage-number">المرحلة 3</div>
+                    <div class="stage-status"><i class="fas fa-lock"></i> مقفلة</div>
+                </div>
+                
+                <div class="stage-card ripple locked" data-stage="4">
+                    <div class="stage-number">المرحلة 4</div>
+                    <div class="stage-status"><i class="fas fa-lock"></i> مقفلة</div>
+                </div>
+                
+                <div class="stage-card ripple locked" data-stage="5">
+                    <div class="stage-number">المرحلة 5</div>
+                    <div class="stage-status"><i class="fas fa-lock"></i> مقفلة</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة المستويات -->
+    <div id="levels-screen" class="screen">
+        <div class="container">
+            <div class="header">
+                <h1>المستويات</h1>
+                <p>اختر مستوى للعب</p>
+            </div>
+            
+            <div class="levels-container" id="levels-container">
+                <!-- سيتم ملء المستويات ديناميكيًا بواسطة JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة اللعبة -->
+    <div id="game-screen" class="screen">
+        <div class="container">
+            <div class="header">
+                <button id="back-btn" class="back-btn">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <h1>المستوى <span id="current-level">1</span></h1>
+                <p>النقاط: <span id="level-points">0</span>/3</p>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="level-progress"></div>
+            </div>
+            
+            <div class="timer-container" id="timer-container">
+                <i class="fas fa-clock"></i>
+                <span id="timer">60</span>
+            </div>
+            
+            <div class="game-container">
+                <h3>بطاقات اللغز</h3>
+                <div class="cards-container" id="app-cards">
+                    <!-- سيتم ملء البطاقات ديناميكيًا -->
+                </div>
+                
+                <h3>بطاقات الحل</h3>
+                <div class="cards-container" id="player-cards">
+                    <!-- سيتم ملء البطاقات ديناميكيًا -->
+                </div>
+            </div>
+            
+            <div class="hint-section">
+                <div class="hint-text" id="hint-text"></div>
+                <button id="hint-btn" class="hint-btn">
+                    <i class="fas fa-lightbulb"></i>
+                    تلميح (<span id="hint-cost">10</span> نقطة)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة الملف الشخصي -->
+    <div id="profile-screen" class="screen">
+        <div class="container">
+            <div class="header">
+                <h1>الملف الشخصي</h1>
+                <p id="profile-name">المستخدم</p>
+            </div>
+            
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="total-points-profile">0</div>
+                    <div class="stat-label">النقاط الكلية</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="completed-levels">0</div>
+                    <div class="stat-label">المستويات المكتملة</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="success-rate">0%</div>
+                    <div class="stat-label">معدل النجاح</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="play-time">0 س 0 د</div>
+                    <div class="stat-label">وقت اللعب</div>
+                </div>
+            </div>
+            
+            <div class="profile-form">
+                <h3>معلومات المستخدم</h3>
+                <div class="input-group">
+                    <label for="user-name">الاسم:</label>
+                    <input type="text" id="user-name" placeholder="أدخل اسمك">
+                </div>
+                <div class="input-group">
+                    <label for="user-email">البريد الإلكتروني (اختياري):</label>
+                    <input type="email" id="user-email" placeholder="أدخل بريدك الإلكتروني">
+                </div>
+                <button id="save-profile" class="btn-primary">حفظ التغييرات</button>
+            </div>
+            
+            <div class="achievements-section">
+                <h3>الإنجازات</h3>
+                <div class="achievements-container" id="achievements-container">
+                    <!-- سيتم ملء الإنجازات ديناميكيًا -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة الإعدادات -->
+    <div id="settings-screen" class="screen">
+        <div class="container">
+            <div class="header">
+                <h1>الإعدادات</h1>
+                <p>خصّص تجربتك في اللعبة</p>
+            </div>
+            
+            <div class="settings-section">
+                <h3>الإشعارات والصوت</h3>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-volume-up"></i>
+                        <span>الصوت</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="sound-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-vibration"></i>
+                        <span>الاهتزاز</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="vibration-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-bell"></i>
+                        <span>الإشعارات</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notifications-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3>نمط اللعبة</h3>
+                <div class="mode-selector">
+                    <div class="mode-tab active" data-mode="normal">
+                        <i class="fas fa-play-circle"></i>
+                        <span>عادي</span>
+                    </div>
+                    <div class="mode-tab" data-mode="timed">
+                        <i class="fas fa-stopwatch"></i>
+                        <span>الوقت</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3>تخصيص المظهر</h3>
+                <div class="color-picker">
+                    <div class="color-option active" data-color="#6c5ce7" style="background-color: #6c5ce7;"></div>
+                    <div class="color-option" data-color="#00b894" style="background-color: #00b894;"></div>
+                    <div class="color-option" data-color="#fd79a8" style="background-color: #fd79a8;"></div>
+                    <div class="color-option" data-color="#fdcb6e" style="background-color: #fdcb6e;"></div>
+                    <div class="color-option" data-color="#0984e3" style="background-color: #0984e3;"></div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3>خيارات أخرى</h3>
+                <button id="share-app" class="btn-secondary">
+                    <i class="fas fa-share-alt"></i>
+                    مشاركة التطبيق
+                </button>
+                <button id="install-app" class="btn-secondary" style="display: none;">
+                    <i class="fas fa-download"></i>
+                    تثبيت التطبيق
+                </button>
+                <button id="reset-app" class="btn-danger">
+                    <i class="fas fa-trash"></i>
+                    إعادة ضبط التطبيق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- رسائل النظام -->
+    <div id="message" class="message-overlay">
+        <div class="message-box">
+            <h3 id="message-title">عنوان الرسالة</h3>
+            <p id="message-text">نص الرسالة هنا</p>
+            <button id="message-btn" class="btn-primary">موافق</button>
+        </div>
+    </div>
+
+    <!-- شريط التنقل السفلي -->
+    <div class="bottom-nav">
+        <div class="nav-item active" data-target="home-screen">
+            <i class="fas fa-home"></i>
+            <span>الرئيسية</span>
+        </div>
+        <div class="nav-item" data-target="levels-screen">
+            <i class="fas fa-gamepad"></i>
+            <span>المستويات</span>
+        </div>
+        <div class="nav-item" data-target="profile-screen">
+            <i class="fas fa-user"></i>
+            <span>الملف</span>
+        </div>
+        <div class="nav-item" data-target="settings-screen">
+            <i class="fas fa-cog"></i>
+            <span>الإعدادات</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    
