@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6c5ce7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>أبطال البطاقات - لعبة الذكاء</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <!-- الشاشة الرئيسية -->
+    <div id="home-screen" class="screen active">
+        <div class="container">
+            <div class="header">
+                <h1>أبطال البطاقات</h1>
+                <p>اختر مرحلة للبدء</p>
+            </div>
+            
+            <div class="stages-container">
+                <div class="stage-card ripple" data-stage="1">
+                    <div class="stage-number">المرحلة 1</div>
+                    <div class="stage-status" id="stage-1-status">0/3 مستويات مكتملة</div>
+                </div>
+                
+                <div class="stage-card ripple locked" data-stage="2">
+                    <div class="stage-number">المرحلة 2</div>
+                    <div class="stage-status"><i class="fas fa-lock"></i> مقفلة</div>
+                </div>
+                
+                <div class="stage-card ripple locked" data-stage="3">
+                    <div class="stage-number">المرحلة 3</div>
+                    <div class="stage-status"><i class="fas fa-lock"></i> مقفلة</div>
+                </div>
+                
+                <div class="stage-card ripple locked" data-stage="4">
+                    <div class="stage-number">المرحلة 4</div>
+                    <div class="stage-status"><i class="fas fa-lock"></i> مقفلة</div>
+                </div>
+                
+                <div class="stage-card ripple locked" data-stage="5">
+                    <div class="stage-number">المرحلة 5</div>
+                    <div class="stage-status"><i class="fas fa-lock"></i> مقفلة</div>
+                </div>
+            </div>
+            
+<div id="levels-screen" class="screen active">
+                    <header>
+                        <h1><i class="fas fa-dragon"></i> أبطال البطاقات <i class="fas fa-dragon"></i></h1>
+                        <div class="total-points">
+                            <i class="fas fa-coins"></i>
+                            <span id="total-points">0</span> نقطة
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="total-progress" style="width: 0%"></div>
+                        </div>
+                    </header>
+                    
+                    <div class="game-modes">
+                        <div class="mode-tabs">
+                            <button class="mode-tab active" data-mode="normal">المستويات العادية</button>
+                            <button class="mode-tab" data-mode="daily">التحدي اليومي</button>
+                            <button class="mode-tab" data-mode="timed">الوقت المحدد</button>
+                        </div>
+                    </div>
+                    
+                    <div class="levels-grid" id="levels-container">
+                        <!-- سيتم ملء المستويات ديناميكيًا -->
+                    </div>
+                </div>
+                
+                <!-- شاشة اللعبة -->
+                <div id="game-screen" class="screen">
+                    <header>
+                        <h1>المستوى <span id="current-level">1</span></h1>
+                        <div class="game-info">
+                            <div class="total-points">
+                                <i class="fas fa-star"></i>
+                                النقاط: <span id="level-points">0</span>/3
+                            </div>
+                            <div class="timer-container" id="timer-container" style="display: none;">
+                                <i class="fas fa-clock"></i>
+                                <span id="timer">60</span> ثانية
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="level-progress" style="width: 0%"></div>
+                        </div>
+                    </header>
+                    
+                    <div class="hint-container" id="hint-container">
+                        <button class="hint-btn" id="hint-btn">
+                            <i class="fas fa-lightbulb"></i> تلميح (<span id="hint-cost">10</span> نقطة)
+                        </button>
+                        <div class="hint-text" id="hint-text"></div>
+                    </div>
+                    
+                    <div class="cards-container">
+                        <div class="cards-section">
+                            <h2><i class="fas fa-robot"></i> بطاقات التحدي</h2>
+                            <div class="app-cards" id="app-cards">
+                                <!-- سيتم ملء بطاقات التطبيق ديناميكيًا -->
+                            </div>
+                        </div>
+                        
+                        <div class="cards-section">
+                            <h2><i class="fas fa-user"></i> بطاقات الحل</h2>
+                            <div class="player-cards" id="player-cards">
+                                <!-- سيتم ملء بطاقات اللاعب ديناميكيًا -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn ripple" id="back-btn">
+                            <i class="fas fa-arrow-right"></i> العودة إلى المستويات
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- شاشة الملف الشخصي -->
+                <div id="profile-screen" class="screen">
+                    <header>
+                        <h1><i class="fas fa-user"></i> الملف الشخصي</h1>
+                    </header>
+                    
+                    <div class="profile-container">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h2 id="profile-name">المستخدم</h2>
+                            <p>المستوى: <span id="profile-level">1</span></p>
+                        </div>
+                        
+                        <div class="achievements-section">
+                            <h3><i class="fas fa-trophy"></i> الإنجازات</h3>
+                            <div class="achievements-grid" id="achievements-container">
+                                <!-- سيتم ملء الإنجازات ديناميكيًا -->
+                            </div>
+                        </div>
+                        
+                        <div class="profile-stats">
+                            <div class="stat-card">
+                                <div class="value" id="total-points-profile">0</div>
+                                <div class="label">النقاط الإجمالية</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="value" id="completed-levels">0</div>
+                                <div class="label">المستويات المكتملة</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="value" id="success-rate">0%</div>
+                                <div class="label">معدل النجاح</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="value" id="play-time">0</div>
+                                <div class="label">وقت اللعب</div>
+                            </div>
+                        </div>
+                        
+                        <div class="profile-form">
+                            <h3>تعديل الملف الشخصي</h3>
+                            <div class="form-group">
+                                <label for="user-name">اسم المستخدم</label>
+                                <input type="text" id="user-name" placeholder="أدخل اسمك">
+                            </div>
+                            <div class="form-group">
+                                <label for="user-email">البريد الإلكتروني (اختياري)</label>
+                                <input type="email" id="user-email" placeholder="أدخل بريدك الإلكتروني">
+                            </div>
+                            <button class="btn ripple" id="save-profile">
+                                <i class="fas fa-save"></i> حفظ التغييرات
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- شاشة الإعدادات -->
+                <div id="settings-screen" class="screen">
+                    <header>
+                        <h1><i class="fas fa-cog"></i> الإعدادات</h1>
+                    </header>
+                    
+                    <div class="settings-container">
+                        <div class="settings-group">
+                            <h3>الإعدادات العامة</h3>
+                            <div class="setting-item">
+                                <div>
+                                    <div>الصوت</div>
+                                    <div class="subtext">تشغيل أو إيقاف الأصوات</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="sound-toggle" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div>
+                                    <div>الاهتزاز</div>
+                                    <div class="subtext">تفعيل الاهتزاز عند التفاعل</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="vibration-toggle" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div>
+                                    <div>الإشعارات</div>
+                                    <div class="subtext">استلام إشعارات بالإنجازات</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="notifications-toggle" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-group">
+                            <h3>المظهر</h3>
+                            <div class="setting-item">
+                                <div>السمة اللونية</div>
+                                <div class="color-options">
+                                    <div class="color-option active" style="background: #6c5ce7;" data-color="#6c5ce7"></div>
+                                    <div class="color-option" style="background: #00b894;" data-color="#00b894"></div>
+                                    <div class="color-option" style="background: #fd79a8;" data-color="#fd79a8"></div>
+                                    <div class="color-option" style="background: #fdcb6e;" data-color="#fdcb6e"></div>
+                                    <div class="color-option" style="background: #d63031;" data-color="#d63031"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-group">
+                            <h3>حول التطبيق</h3>
+                            <div class="setting-item">
+                                <div>الإصدار</div>
+                                <div>1.0.0</div>
+                            </div>
+                            <div class="setting-item">
+                                <button class="btn ripple" id="share-app">
+                                    <i class="fas fa-share-alt"></i> مشاركة التطبيق
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <button class="btn ripple" id="install-app">
+                                    <i class="fas fa-download"></i> تثبيت التطبيق
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <button class="btn ripple" id="reset-app">
+                                    <i class="fas fa-trash"></i> إعادة الضبط
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- رسائل التطبيق -->
+                <div class="message" id="message">
+                    <i class="fas fa-trophy"></i>
+                    <h3 id="message-title">تهانينا!</h3>
+                    <p id="message-text">لقد أكملت المستوى بنجاح</p>
+                    <button class="btn ripple" id="message-btn">
+                        <i class="fas fa-check"></i> موافق
+                    </button>
+                </div>
+            </div>
+        </div>
+
+            <div class="bottom-nav">
+                <div class="nav-item active" data-target="home-screen">
+                    <i class="fas fa-home"></i>
+                    <span>الرئيسية</span>
+                </div>
+                <div class="nav-item" data-target="levels-screen">
+                    <i class="fas fa-gamepad"></i>
+                    <span>المستويات</span>
+                </div>
+                <div class="nav-item" data-target="profile-screen">
+                    <i class="fas fa-user"></i>
+                    <span>الملف</span>
+                </div>
+                <div class="nav-item" data-target="settings-screen">
+                    <i class="fas fa-cog"></i>
+                    <span>الإعدادات</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- باقي الشاشات (levels-screen, game-screen, profile-screen, settings-screen) -->
+    <!-- سيتم تضمينها هنا بنفس الشكل الأصلي -->
+
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
